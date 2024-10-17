@@ -31,9 +31,9 @@ public class GameBoardTest {
     @Test
     public void testEquals() {
         GameBoard otherBoard = new GameBoard();
-        assertTrue(gameBoard.equals(otherBoard));
+        assertEquals(gameBoard, otherBoard);
         gameBoard.playMove(0, 'Y');
-        assertFalse(gameBoard.equals(otherBoard));
+        assertNotEquals(gameBoard, otherBoard);
     }
 
     @Test

@@ -48,7 +48,7 @@ public class GameBoard {
 
     @Override
     public String toString() {
-        return "GameBoard{" +
+        return "GameBoard {" +
                 "board=" + Arrays.deepToString(board) +
                 '}';
     }
