@@ -48,7 +48,7 @@ public class GameBoard {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("GameBoard{\n");
+        StringBuilder sb = new StringBuilder("GameBoard {\n");
         for (char[] row : board) {
             sb.append(Arrays.toString(row)).append("\n");
         }

@@ -15,7 +15,7 @@ public class PlayerTest {
     public void testEquals() {
         Player player1 = new Player("Laking", 'Y');
         Player player2 = new Player("Laking", 'Y');
-        Player player3 = new Player("Balazs", 'R');
+        Player player3 = new Player("Balazs ", 'R');
         assertEquals(player1, player2);
         assertNotEquals(player1, player3);
     }

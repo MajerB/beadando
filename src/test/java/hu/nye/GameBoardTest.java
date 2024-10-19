@@ -46,7 +46,7 @@ public class GameBoardTest {
     public void testToString() {
         gameBoard.playMove(0, 'Y');
         gameBoard.playMove(1, 'R');
-        String expected = "GameBoard{\n" +
+        String expected = "GameBoard {\n" +
                 "[., ., ., ., ., ., .]\n" +
                 "[., ., ., ., ., ., .]\n" +
                 "[., ., ., ., ., ., .]\n" +

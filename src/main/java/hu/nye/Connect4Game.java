@@ -26,7 +26,7 @@ public class Connect4Game {
                 String colInput = scanner.nextLine();
                 int col = colInput.charAt(0) - 'a';
                 if (!gameBoard.playMove(col, currentPlayer.getToken())) {
-                    System.out.println("Invalid move. Try again..");
+                    System.out.println("Invalid move. Try again.");
                     continue;
                 }
             } else {
