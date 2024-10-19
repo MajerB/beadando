@@ -44,7 +44,16 @@ public class GameBoardTest {
 
     @Test
     public void testToString() {
-        String expected = "GameBoard{board=" + Arrays.deepToString(gameBoard.getBoard()) + "}";
+        gameBoard.playMove(0, 'Y');
+        gameBoard.playMove(1, 'R');
+        String expected = "GameBoard{\n" +
+                "[., ., ., ., ., ., .]\n" +
+                "[., ., ., ., ., ., .]\n" +
+                "[., ., ., ., ., ., .]\n" +
+                "[., ., ., ., ., ., .]\n" +
+                "[., ., ., ., ., ., .]\n" +
+                "[Y, R, ., ., ., ., .]\n" +
+                "}";
         assertEquals(expected, gameBoard.toString());
     }
 }
