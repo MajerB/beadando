@@ -19,33 +19,75 @@ public class Connect4Game {
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
+        String filePath = "game_board.txt";
+
         while (true) {
             displayBoard();
+            System.out.println("Press 0 to save the game, or choose a column (a,b,c,d,e,f,g): ");
+
             if (currentPlayer.equals(player1)) {
-                System.out.println(currentPlayer.getName() + ", enter a column (a,b,c,d,e,f,g): ");
-                String colInput = scanner.nextLine();
-                int col = colInput.charAt(0) - 'a';
+                // Player's turn
+                String input = scanner.nextLine();
+                if (input.equals("0")) {
+                    try {
+                        saveGameBoard(filePath);
+                        System.out.println("Game saved successfully.");
+                    } catch (IOException e) {
+                        System.out.println("Failed to save the game.");
+                    }
+                    continue;
+                }
+
+                int col = input.charAt(0) - 'a';
                 if (!gameBoard.playMove(col, currentPlayer.getToken())) {
                     System.out.println("Invalid move. Try again.");
                     continue;
                 }
             } else {
+                // Computer's turn
                 int col = generateComputerMove();
-                gameBoard.playMove(col, currentPlayer.getToken());
-                System.out.println("Computer plays in column: " + (char) ('a' + col));
+                if (gameBoard.playMove(col, currentPlayer.getToken())) {
+                    System.out.println("Computer plays in column: " + (char) ('a' + col));
+                } else {
+                    System.out.println("Computer tried an invalid move. Re-trying...");
+                    continue; // Retry move if computer chose an invalid column
+                }
             }
+
             if (checkWin()) {
                 displayBoard();
                 System.out.println(currentPlayer.getName() + " wins!");
+
+                // Clear the game board file
+                try {
+                    clearGameBoardFile(filePath);
+                    System.out.println("Game board file cleared.");
+                } catch (IOException e) {
+                    System.out.println("Failed to clear the game board file.");
+                }
                 break;
             }
+
             if (checkDraw()) {
                 displayBoard();
                 System.out.println("It's a draw!");
                 break;
             }
+
             switchPlayer();
         }
+    }
+
+    private void clearGameBoardFile(String filePath) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+        for (int i = 0; i < GameBoard.ROWS; i++) {
+            for (int j = 0; j < GameBoard.COLS; j++) {
+                writer.write('.');  // Write empty cell
+            }
+            writer.newLine();
+        }
+        writer.flush();
+        writer.close();
     }
 
     private void switchPlayer() {
@@ -53,13 +95,69 @@ public class Connect4Game {
     }
 
     private boolean checkWin() {
-        // Implement winning logic here
+        char[][] board = gameBoard.getBoard();
+        char token = currentPlayer.getToken();
+
+        // Check horizontal
+        for (int row = 0; row < GameBoard.ROWS; row++) {
+            for (int col = 0; col < GameBoard.COLS - 3; col++) {
+                if (board[row][col] == token &&
+                        board[row][col + 1] == token &&
+                        board[row][col + 2] == token &&
+                        board[row][col + 3] == token) {
+                    return true;
+                }
+            }
+        }
+
+        // Check vertical
+        for (int col = 0; col < GameBoard.COLS; col++) {
+            for (int row = 0; row < GameBoard.ROWS - 3; row++) {
+                if (board[row][col] == token &&
+                        board[row + 1][col] == token &&
+                        board[row + 2][col] == token &&
+                        board[row + 3][col] == token) {
+                    return true;
+                }
+            }
+        }
+
+        // Check diagonal (bottom-left to top-right)
+        for (int row = 3; row < GameBoard.ROWS; row++) {
+            for (int col = 0; col < GameBoard.COLS - 3; col++) {
+                if (board[row][col] == token &&
+                        board[row - 1][col + 1] == token &&
+                        board[row - 2][col + 2] == token &&
+                        board[row - 3][col + 3] == token) {
+                    return true;
+                }
+            }
+        }
+
+        // Check diagonal (top-left to bottom-right)
+        for (int row = 0; row < GameBoard.ROWS - 3; row++) {
+            for (int col = 0; col < GameBoard.COLS - 3; col++) {
+                if (board[row][col] == token &&
+                        board[row + 1][col + 1] == token &&
+                        board[row + 2][col + 2] == token &&
+                        board[row + 3][col + 3] == token) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
     private boolean checkDraw() {
-        // Implement draw logic here
-        return false;
+        char[][] board = gameBoard.getBoard();
+        // A draw occurs if there are no empty cells ('.') in the top row
+        for (int col = 0; col < GameBoard.COLS; col++) {
+            if (board[0][col] == '.') {
+                return false;
+            }
+        }
+        return true;
     }
 
     private int generateComputerMove() {
