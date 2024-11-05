@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
 public class GameBoardTest {
     private GameBoard gameBoard;
 
@@ -21,11 +19,24 @@ public class GameBoardTest {
     }
 
     @Test
-    public void testPlayMoveInvalid() {
+    public void testPlayMoveInvalidColumnOutOfRange() {
+        assertFalse(gameBoard.playMove(-1, 'Y')); // Test left boundary
+        assertFalse(gameBoard.playMove(GameBoard.COLS, 'Y')); // Test right boundary
+    }
+
+    @Test
+    public void testPlayMoveColumnFull() {
         for (int i = 0; i < GameBoard.ROWS; i++) {
             gameBoard.playMove(0, 'Y');
         }
-        assertFalse(gameBoard.playMove(0, 'R'));
+        assertFalse(gameBoard.playMove(0, 'R')); // Column should be full
+    }
+
+    @Test
+    public void testGetBoard() {
+        gameBoard.playMove(0, 'Y');
+        char[][] board = gameBoard.getBoard();
+        assertEquals('Y', board[GameBoard.ROWS - 1][0]);
     }
 
     @Test
@@ -55,5 +66,15 @@ public class GameBoardTest {
                 "[Y, R, ., ., ., ., .]\n" +
                 "}";
         assertEquals(expected, gameBoard.toString());
+    }
+
+    @Test
+    public void testNotEqualsWithDifferentObject() {
+        assertNotEquals(gameBoard, "Not a GameBoard object");
+    }
+
+    @Test
+    public void testNotEqualsWithNull() {
+        assertNotEquals(gameBoard, null);
     }
 }

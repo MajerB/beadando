@@ -1,6 +1,8 @@
 package hu.nye;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -9,6 +11,8 @@ public class Connect4Game {
     private final Player player1;
     private final Player player2;
     private Player currentPlayer;
+
+    private static final String HIGH_SCORE_FILE = "highscores.txt";
 
     public Connect4Game(Player player1, Player player2) {
         this.player1 = player1;
@@ -23,7 +27,7 @@ public class Connect4Game {
 
         while (true) {
             displayBoard();
-            System.out.println("Press 0 to save the game, or choose a column (a,b,c,d,e,f,g): ");
+            System.out.println("Press 0 to save the game, h to view high scores, q to quit, or choose a column (a,b,c,d,e,f,g): ");
 
             if (currentPlayer.equals(player1)) {
                 // Player's turn
@@ -34,6 +38,22 @@ public class Connect4Game {
                         System.out.println("Game saved successfully.");
                     } catch (IOException e) {
                         System.out.println("Failed to save the game.");
+                    }
+                    continue;
+                }
+
+                if (input.equals("q")) {
+                    System.out.println("Goodbye!");
+                    System.exit(0);
+                }
+
+                if (input.equals("h")) {
+                    try {
+                        System.out.println("Showing highscores:");
+                        showHighScores();
+                        System.exit(0);
+                    } catch (IOException e) {
+                        System.out.println("Error loading highscores.");
                     }
                     continue;
                 }
@@ -58,6 +78,9 @@ public class Connect4Game {
                 displayBoard();
                 System.out.println(currentPlayer.getName() + " wins!");
 
+                // Update high scores
+                updateHighScores(currentPlayer.getName());
+
                 // Clear the game board file
                 try {
                     clearGameBoardFile(filePath);
@@ -79,22 +102,25 @@ public class Connect4Game {
     }
 
     private void clearGameBoardFile(String filePath) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
-        for (int i = 0; i < GameBoard.ROWS; i++) {
-            for (int j = 0; j < GameBoard.COLS; j++) {
-                writer.write('.');  // Write empty cell
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (int i = 0; i < GameBoard.ROWS; i++) {
+                for (int j = 0; j < GameBoard.COLS; j++) {
+                    writer.write('.');  // Write empty cell
+                }
+                writer.newLine();
             }
-            writer.newLine();
+            writer.flush(); // Ensure all data is written to the file
+        } catch (IOException e) {
+            System.out.println("Error clearing game board file: " + e.getMessage());
+            throw e; // Re-throw exception for handling in the calling method
         }
-        writer.flush();
-        writer.close();
     }
 
-    private void switchPlayer() {
+    public void switchPlayer() {
         currentPlayer = (currentPlayer.equals(player1)) ? player2 : player1;
     }
 
-    private boolean checkWin() {
+    public boolean checkWin() {
         char[][] board = gameBoard.getBoard();
         char token = currentPlayer.getToken();
 
@@ -149,7 +175,7 @@ public class Connect4Game {
         return false;
     }
 
-    private boolean checkDraw() {
+    public boolean checkDraw() {
         char[][] board = gameBoard.getBoard();
         // A draw occurs if there are no empty cells ('.') in the top row
         for (int col = 0; col < GameBoard.COLS; col++) {
@@ -160,7 +186,7 @@ public class Connect4Game {
         return true;
     }
 
-    private int generateComputerMove() {
+    public int generateComputerMove() {
         Random rand = new Random();
         return rand.nextInt(GameBoard.COLS);
     }
@@ -175,7 +201,7 @@ public class Connect4Game {
         }
     }
 
-    private void loadGameBoard(String filePath) throws IOException {
+    public void loadGameBoard(String filePath) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
         for (int i = 0; i < gameBoard.getBoard().length; i++) {
             String line = reader.readLine();
@@ -186,7 +212,7 @@ public class Connect4Game {
         reader.close();
     }
 
-    private void saveGameBoard(String filePath) throws IOException {
+    public void saveGameBoard(String filePath) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
         for (char[] row : gameBoard.getBoard()) {
             for (char cell : row) {
@@ -195,6 +221,72 @@ public class Connect4Game {
             writer.newLine();
         }
         writer.close();
+    }
+
+    public void updateHighScores(String winnerName) {
+        Map<String, Integer> scores = loadHighScores();
+
+        // Update score for the winner
+        scores.put(winnerName, scores.getOrDefault(winnerName, 0) + 1);
+
+        // Save updated scores back to the file
+        saveHighScores(scores);
+    }
+
+    public Map<String, Integer> loadHighScores() {
+        Map<String, Integer> scores = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(HIGH_SCORE_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(":");
+                if (parts.length == 2) {
+                    String name = parts[0].trim();
+                    int count = Integer.parseInt(parts[1].trim());
+                    scores.put(name, count);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Could not load high scores: " + e.getMessage());
+        }
+        return scores;
+    }
+
+    public void saveHighScores(Map<String, Integer> scores) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(HIGH_SCORE_FILE))) {
+            for (Map.Entry<String, Integer> entry : scores.entrySet()) {
+                writer.write(entry.getKey() + ": " + entry.getValue());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Could not save high scores: " + e.getMessage());
+        }
+    }
+
+    private void showHighScores() throws IOException {
+        File file = new File(HIGH_SCORE_FILE);
+        if (!file.exists()) {
+            System.out.println("No high scores available.");
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(HIGH_SCORE_FILE))) {
+            String line;
+            System.out.println("High Scores:");
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading high scores: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    public GameBoard getGameBoard() {
+        return gameBoard;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
     }
 
     public static void main(String[] args) throws IOException {
@@ -211,6 +303,5 @@ public class Connect4Game {
             game.loadGameBoard(filePath);
         }
         game.start();
-        game.saveGameBoard(filePath);
     }
 }
