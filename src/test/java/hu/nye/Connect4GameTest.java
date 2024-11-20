@@ -1,7 +1,6 @@
 package hu.nye;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.*;
@@ -10,13 +9,6 @@ import org.mockito.Mockito;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class Connect4GameTest {
 
@@ -24,15 +16,15 @@ class Connect4GameTest {
     private Player player1;
     private Player player2;
 
-   @BeforeEach
-   public void setUp() throws IOException {
-       BufferedWriter writer = new BufferedWriter(new FileWriter("highscores.txt"));
-       writer.write("Player: 10\nAnotherPlayer: 5\n");
-       writer.close();
-       game = new Connect4Game(new Player("Player1", 'Y'), new Player("Computer", 'R'));
-       player1 = new Player("Player1", 'Y');
-       player2 = new Player("Computer", 'R');
-   }
+    @BeforeEach
+    public void setUp() throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("highscores.txt"));
+        writer.write("Player: 10\nAnotherPlayer: 5\n");
+        writer.close();
+        game = new Connect4Game(new Player("Player1", 'Y'), new Player("Computer", 'R'));
+        player1 = new Player("Player1", 'Y');
+        player2 = new Player("Computer", 'R');
+    }
 
     @Test
     void testCheckWinHorizontal() {
@@ -44,7 +36,7 @@ class Connect4GameTest {
         grid[0][2] = 'Y';
         grid[0][3] = 'Y';
 
-        assertTrue(game.checkWin());
+        assertTrue(game.checkWin(), "Horizontal win should be detected.");
     }
 
     @Test
@@ -57,7 +49,7 @@ class Connect4GameTest {
         grid[2][0] = 'Y';
         grid[3][0] = 'Y';
 
-        assertTrue(game.checkWin());
+        assertTrue(game.checkWin(), "Vertical win should be detected.");
     }
 
     @Test
@@ -70,7 +62,7 @@ class Connect4GameTest {
         grid[1][2] = 'Y';
         grid[0][3] = 'Y';
 
-        assertTrue(game.checkWin());
+        assertTrue(game.checkWin(), "Diagonal win (bottom-left to top-right) should be detected.");
     }
 
     @Test
@@ -83,7 +75,7 @@ class Connect4GameTest {
         grid[2][2] = 'Y';
         grid[3][3] = 'Y';
 
-        assertTrue(game.checkWin());
+        assertTrue(game.checkWin(), "Diagonal win (top-left to bottom-right) should be detected.");
     }
 
     @Test
@@ -97,7 +89,7 @@ class Connect4GameTest {
             }
         }
 
-        assertTrue(game.checkDraw());
+        assertTrue(game.checkDraw(), "The game should be a draw when the board is full and no one has won.");
     }
 
     @Test
@@ -150,7 +142,6 @@ class Connect4GameTest {
         Assertions.assertEquals(player1, game.getCurrentPlayer());
     }
 
-
     @Test
     public void testShowHighScores() throws IOException {
         File file = new File("highscores.txt");
@@ -173,9 +164,7 @@ class Connect4GameTest {
         File file = new File("empty_highscores.txt");
         file.deleteOnExit();
 
-
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-
         }
 
         game.showHighScores();
@@ -184,7 +173,6 @@ class Connect4GameTest {
     @Test
     public void testCheckDrawWhenBoardIsFull() {
         GameBoard board = game.getGameBoard();
-
 
         for (int col = 0; col < GameBoard.COLS; col++) {
             for (int row = 0; row < GameBoard.ROWS; row++) {
@@ -195,13 +183,14 @@ class Connect4GameTest {
         assertTrue(game.checkDraw(), "The game should end in a draw when the board is full and no player has won.");
     }
 
-   @Test
+    @Test
     public void testLoadHighScores() {
         Map<String, Integer> highScores = game.loadHighScores();
         assertNotNull(highScores);
         assertEquals(10, highScores.get("Player"));
         assertEquals(5, highScores.get("AnotherPlayer"));
     }
+
     @AfterEach
     public void tearDown() {
         File file = new File("highscores.txt");
@@ -209,4 +198,48 @@ class Connect4GameTest {
             file.delete();
         }
     }
+
+    @Test
+    void testCheckWinAfterMove() {
+        GameBoard board = game.getGameBoard();
+        char[][] grid = board.getBoard();
+
+        grid[0][0] = 'Y';
+        grid[0][1] = 'Y';
+        grid[0][2] = 'Y';
+        grid[0][3] = 'Y';
+
+        assertTrue(game.checkWin(), "A win should be detected after a valid move.");
+    }
+
+    @Test
+    void testSaveHighScoresAfterGameEnds() throws IOException {
+        Connect4Game gameSpy = Mockito.spy(game);
+        Map<String, Integer> highScores = new HashMap<>();
+        highScores.put("Player1", 10);
+        doReturn(highScores).when(gameSpy).loadHighScores();
+
+        gameSpy.updateHighScores("Player1");
+
+        verify(gameSpy).saveHighScores(anyMap());
+        assertEquals(11, highScores.get("Player1"), "High score should be updated correctly.");
+    }
+
+    @Test
+    void testHighScoresAreSorted() throws IOException {
+        Connect4Game gameSpy = Mockito.spy(game);
+        Map<String, Integer> scores = new HashMap<>();
+        scores.put("Player1", 12);
+        scores.put("Player2", 15);
+        doReturn(scores).when(gameSpy).loadHighScores();
+
+        gameSpy.updateHighScores("Player1");
+        gameSpy.updateHighScores("Player2");
+
+        assertTrue(scores.get("Player2") > scores.get("Player1"), "High scores should be sorted from highest to lowest.");
+    }
+
+    
+
+
 }
