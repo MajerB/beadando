@@ -192,7 +192,7 @@ public class Connect4Game {
         return rand.nextInt(GameBoard.COLS);
     }
 
-    private void displayBoard() {
+    void displayBoard() {
         char[][] board = gameBoard.getBoard();
         for (int i = 0; i < GameBoard.ROWS; i++) {
             for (int j = 0; j < GameBoard.COLS; j++) {
