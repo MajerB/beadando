@@ -6,11 +6,12 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
+
 public class Connect4Game {
-    private final GameBoard gameBoard;
     private final Player player1;
     private final Player player2;
     private Player currentPlayer;
+    private final GameBoard gameBoard;
 
     private static final String HIGH_SCORE_FILE = "highscores.txt";
 
