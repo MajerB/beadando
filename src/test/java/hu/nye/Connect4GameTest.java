@@ -4,9 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
 import java.io.*;
@@ -26,12 +24,15 @@ class Connect4GameTest {
     private Player player1;
     private Player player2;
 
-    @BeforeEach
-    void setUp() {
-        player1 = new Player("Player1", 'Y');
-        player2 = new Player("Computer", 'R');
-        game = new Connect4Game(player1, player2);
-    }
+   @BeforeEach
+   public void setUp() throws IOException {
+       BufferedWriter writer = new BufferedWriter(new FileWriter("highscores.txt"));
+       writer.write("Player: 10\nAnotherPlayer: 5\n");
+       writer.close();
+       game = new Connect4Game(new Player("Player1", 'Y'), new Player("Computer", 'R'));
+       player1 = new Player("Player1", 'Y');
+       player2 = new Player("Computer", 'R');
+   }
 
     @Test
     void testCheckWinHorizontal() {
@@ -124,12 +125,12 @@ class Connect4GameTest {
     public void testUpdateHighScores() throws IOException {
         Connect4Game gameSpy = Mockito.spy(game);
         Map<String, Integer> scores = new HashMap<>();
-        scores.put("Laking", 2);
+        scores.put("Player", 2);
         doReturn(scores).when(gameSpy).loadHighScores();
 
-        gameSpy.updateHighScores("Laking");
+        gameSpy.updateHighScores("Player");
         verify(gameSpy).saveHighScores(anyMap());
-        Assertions.assertEquals(3, scores.get("Laking")); // Updated count
+        Assertions.assertEquals(3, scores.get("Player")); // Updated count
     }
 
     @Test
@@ -140,8 +141,11 @@ class Connect4GameTest {
 
     @Test
     public void testSwitchPlayer() {
+        Assertions.assertEquals(player1, game.getCurrentPlayer());
+
         game.switchPlayer();
         Assertions.assertEquals(player2, game.getCurrentPlayer());
+
         game.switchPlayer();
         Assertions.assertEquals(player1, game.getCurrentPlayer());
     }
@@ -151,17 +155,10 @@ class Connect4GameTest {
     public void testShowHighScores() throws IOException {
         File file = new File("highscores.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("Laking: 5\n");
+            writer.write("Player: 5\n");
             writer.write("Computer: 3\n");
         }
         game.showHighScores();
-    }
-
-    @Test
-    public void testLoadHighScores() {
-        Map<String, Integer> highScores = game.loadHighScores();
-        Assertions.assertNotNull(highScores);
-        assertTrue(highScores.isEmpty() || highScores.containsKey("Laking"));
     }
 
     @Test
@@ -198,4 +195,18 @@ class Connect4GameTest {
         assertTrue(game.checkDraw(), "The game should end in a draw when the board is full and no player has won.");
     }
 
+   @Test
+    public void testLoadHighScores() {
+        Map<String, Integer> highScores = game.loadHighScores();
+        assertNotNull(highScores);
+        assertEquals(10, highScores.get("Player"));
+        assertEquals(5, highScores.get("AnotherPlayer"));
+    }
+    @AfterEach
+    public void tearDown() {
+        File file = new File("highscores.txt");
+        if (file.exists()) {
+            file.delete();
+        }
+    }
 }

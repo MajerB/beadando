@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test;
 public class PlayerTest {
     @Test
     public void testPlayerCreation() {
-        Player player = new Player("Laking", 'Y');
-        assertEquals("Laking", player.getName());
+        Player player = new Player("Player2", 'Y');
+        assertEquals("Player2", player.getName());
         assertEquals('Y', player.getToken());
     }
 
     @Test
     public void testEquals() {
-        Player player1 = new Player("Laking", 'Y');
-        Player player2 = new Player("Laking", 'Y');
+        Player player1 = new Player("Player2", 'Y');
+        Player player2 = new Player("Player2", 'Y');
         Player player3 = new Player("Balazs", 'R');
 
         assertEquals(player1, player2);
@@ -26,8 +26,8 @@ public class PlayerTest {
 
     @Test
     public void testHashCode() {
-        Player player1 = new Player("Laking", 'Y');
-        Player player2 = new Player("Laking", 'Y');
+        Player player1 = new Player("Player2", 'Y');
+        Player player2 = new Player("Player2", 'Y');
         Player player3 = new Player("Balazs", 'R');
 
         assertEquals(player1.hashCode(), player2.hashCode());
@@ -36,8 +36,8 @@ public class PlayerTest {
 
     @Test
     public void testToString() {
-        Player player = new Player("Laking", 'Y');
-        String expected = "Player{name='Laking', token=Y}";
+        Player player = new Player("Player2", 'Y');
+        String expected = "Player{name='Player2', token=Y}";
         assertEquals(expected, player.toString());
     }
 }
