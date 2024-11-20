@@ -99,20 +99,20 @@ public class Connect4GameTest {
     @Test
     public void testSaveGameBoard() throws IOException {
         File file = new File("test_game_board.txt");
-        file.deleteOnExit(); // Clean up after test
+        file.deleteOnExit();
 
-        // Make a move in the first column (column index 0)
+
         game.getGameBoard().playMove(0, 'Y');
         game.saveGameBoard(file.getPath());
 
-        // Read the saved file and check the last row for the 'Y' token
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             for (int i = 0; i < GameBoard.ROWS - 1; i++) {
-                reader.readLine(); // Skip to the last row
+                reader.readLine();
             }
-            line = reader.readLine(); // Read the last row where the token should be
-            assertEquals("Y......", line); // Check the last row after move
+            line = reader.readLine();
+            assertEquals("Y......", line);
         }
     }
 
@@ -128,4 +128,26 @@ public class Connect4GameTest {
         game.loadGameBoard(file.getPath());
         assertEquals('Y', game.getGameBoard().getBoard()[0][0]);
     }
+
+
+    @Test
+    public void testShowHighScores() throws IOException {
+        File file = new File("highscores.txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write("Laking: 5\n");
+            writer.write("Computer: 3\n");
+        }
+        game.showHighScores();
+    }
+
+    @Test
+    public void testLoadHighScores() {
+        Map<String, Integer> highScores = game.loadHighScores();
+        assertNotNull(highScores);
+        assertTrue(highScores.isEmpty() || highScores.containsKey("Laking"));
+    }
+
+
+
+
 }

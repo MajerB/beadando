@@ -102,7 +102,7 @@ public class Connect4Game {
         }
     }
 
-    private void clearGameBoardFile(String filePath) throws IOException {
+    void clearGameBoardFile(String filePath) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             for (int i = 0; i < GameBoard.ROWS; i++) {
                 for (int j = 0; j < GameBoard.COLS; j++) {
@@ -263,7 +263,7 @@ public class Connect4Game {
         }
     }
 
-    private void showHighScores() throws IOException {
+    void showHighScores() throws IOException {
         File file = new File(HIGH_SCORE_FILE);
         if (!file.exists()) {
             System.out.println("No high scores available.");
