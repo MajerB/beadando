@@ -1,8 +1,10 @@
 package hu.nye;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -26,9 +28,9 @@ public class Connect4GameTest {
     @Test
     public void testSwitchPlayer() {
         game.switchPlayer();
-        assertEquals(player2, game.getCurrentPlayer());
+        Assertions.assertEquals(player2, game.getCurrentPlayer());
         game.switchPlayer();
-        assertEquals(player1, game.getCurrentPlayer());
+        Assertions.assertEquals(player1, game.getCurrentPlayer());
     }
 
     @Test
@@ -70,12 +72,13 @@ public class Connect4GameTest {
     @Test
     public void testCheckDraw() {
         GameBoard board = game.getGameBoard();
-        for (int i = 0; i < GameBoard.COLS; i++) {
-            for (int j = 0; j < GameBoard.ROWS; j++) {
-                board.playMove(i, (i + j) % 2 == 0 ? 'Y' : 'R');
+        // Fill the board with alternating tokens, no winner
+        for (int col = 0; col < GameBoard.COLS; col++) {
+            for (int row = 0; row < GameBoard.ROWS; row++) {
+                board.playMove(col, (col + row) % 2 == 0 ? 'Y' : 'R');
             }
         }
-        assertTrue(game.checkDraw());
+        assertTrue(game.checkDraw()); // Board is full, no winner, should return true for draw
     }
 
     @Test
@@ -93,7 +96,7 @@ public class Connect4GameTest {
 
         gameSpy.updateHighScores("Laking");
         verify(gameSpy).saveHighScores(anyMap());
-        assertEquals(3, scores.get("Laking")); // Updated count
+        Assertions.assertEquals(3, scores.get("Laking")); // Updated count
     }
 
     @Test
@@ -112,7 +115,7 @@ public class Connect4GameTest {
                 reader.readLine();
             }
             line = reader.readLine();
-            assertEquals("Y......", line);
+            Assertions.assertEquals("Y......", line);
         }
     }
 
@@ -126,7 +129,7 @@ public class Connect4GameTest {
             }
         }
         game.loadGameBoard(file.getPath());
-        assertEquals('Y', game.getGameBoard().getBoard()[0][0]);
+        Assertions.assertEquals('Y', game.getGameBoard().getBoard()[0][0]);
     }
 
 
@@ -143,10 +146,43 @@ public class Connect4GameTest {
     @Test
     public void testLoadHighScores() {
         Map<String, Integer> highScores = game.loadHighScores();
-        assertNotNull(highScores);
+        Assertions.assertNotNull(highScores);
         assertTrue(highScores.isEmpty() || highScores.containsKey("Laking"));
     }
 
+    @Test
+    public void testLoadGameBoardFileNotFound() {
+        File file = new File("nonexistent_game_board.txt");
+
+        assertThrows(IOException.class, () -> game.loadGameBoard(file.getPath()), "IOException should be thrown when the file does not exist.");
+    }
+
+    @Test
+    public void testShowHighScoresEmptyFile() throws IOException {
+        File file = new File("empty_highscores.txt");
+        file.deleteOnExit();
+
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+
+        }
+
+        game.showHighScores();
+    }
+
+    @Test
+    public void testCheckDrawWhenBoardIsFull() {
+        GameBoard board = game.getGameBoard();
+
+
+        for (int col = 0; col < GameBoard.COLS; col++) {
+            for (int row = 0; row < GameBoard.ROWS; row++) {
+                board.playMove(col, (col + row) % 2 == 0 ? 'Y' : 'R');
+            }
+        }
+
+        assertTrue(game.checkDraw(), "The game should end in a draw when the board is full and no player has won.");
+    }
 
 
 
