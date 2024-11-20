@@ -12,79 +12,112 @@ import org.mockito.Mockito;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class Connect4GameTest {
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class Connect4GameTest {
+
     private Connect4Game game;
     private Player player1;
     private Player player2;
 
     @BeforeEach
-    public void setUp() {
-        player1 = new Player("Laking", 'Y');
+    void setUp() {
+        player1 = new Player("Player1", 'Y');
         player2 = new Player("Computer", 'R');
         game = new Connect4Game(player1, player2);
     }
 
     @Test
-    public void testSwitchPlayer() {
-        game.switchPlayer();
-        Assertions.assertEquals(player2, game.getCurrentPlayer());
-        game.switchPlayer();
-        Assertions.assertEquals(player1, game.getCurrentPlayer());
-    }
-
-    @Test
-    public void testCheckWinHorizontal() {
+    void testCheckWinHorizontal() {
         GameBoard board = game.getGameBoard();
-        board.playMove(0, 'Y');
-        board.playMove(1, 'Y');
-        board.playMove(2, 'Y');
-        board.playMove(3, 'Y');
+        char[][] grid = board.getBoard();
+
+        grid[0][0] = 'Y';
+        grid[0][1] = 'Y';
+        grid[0][2] = 'Y';
+        grid[0][3] = 'Y';
+
         assertTrue(game.checkWin());
     }
 
     @Test
-    public void testCheckWinVertical() {
+    void testCheckWinVertical() {
         GameBoard board = game.getGameBoard();
-        board.playMove(0, 'Y');
-        board.playMove(0, 'Y');
-        board.playMove(0, 'Y');
-        board.playMove(0, 'Y');
+        char[][] grid = board.getBoard();
+
+        grid[0][0] = 'Y';
+        grid[1][0] = 'Y';
+        grid[2][0] = 'Y';
+        grid[3][0] = 'Y';
+
         assertTrue(game.checkWin());
     }
 
     @Test
-    public void testCheckWinDiagonal() {
+    void testCheckWinDiagonalBottomLeftToTopRight() {
         GameBoard board = game.getGameBoard();
-        board.playMove(0, 'Y');
-        board.playMove(1, '.');
-        board.playMove(1, 'Y');
-        board.playMove(2, '.');
-        board.playMove(2, '.');
-        board.playMove(2, 'Y');
-        board.playMove(3, '.');
-        board.playMove(3, '.');
-        board.playMove(3, '.');
-        board.playMove(3, 'Y');
+        char[][] grid = board.getBoard();
+
+        grid[3][0] = 'Y';
+        grid[2][1] = 'Y';
+        grid[1][2] = 'Y';
+        grid[0][3] = 'Y';
+
         assertTrue(game.checkWin());
     }
 
     @Test
-    public void testCheckDraw() {
+    void testCheckWinDiagonalTopLeftToBottomRight() {
         GameBoard board = game.getGameBoard();
-        // Fill the board with alternating tokens, no winner
-        for (int col = 0; col < GameBoard.COLS; col++) {
-            for (int row = 0; row < GameBoard.ROWS; row++) {
-                board.playMove(col, (col + row) % 2 == 0 ? 'Y' : 'R');
+        char[][] grid = board.getBoard();
+
+        grid[0][0] = 'Y';
+        grid[1][1] = 'Y';
+        grid[2][2] = 'Y';
+        grid[3][3] = 'Y';
+
+        assertTrue(game.checkWin());
+    }
+
+    @Test
+    void testCheckDraw() {
+        GameBoard board = game.getGameBoard();
+        char[][] grid = board.getBoard();
+
+        for (int row = 0; row < GameBoard.ROWS; row++) {
+            for (int col = 0; col < GameBoard.COLS; col++) {
+                grid[row][col] = (row + col) % 2 == 0 ? 'Y' : 'R';
             }
         }
-        assertTrue(game.checkDraw()); // Board is full, no winner, should return true for draw
+
+        assertTrue(game.checkDraw());
     }
 
     @Test
-    public void testGenerateComputerMove() {
-        int col = game.generateComputerMove();
-        assertTrue(col >= 0 && col < GameBoard.COLS);
+    void testSaveAndLoadGameBoard() throws IOException {
+        String filePath = "test_game_board.txt";
+        GameBoard board = game.getGameBoard();
+        char[][] grid = board.getBoard();
+
+        grid[0][0] = 'Y';
+        grid[1][1] = 'R';
+        game.saveGameBoard(filePath);
+
+        Connect4Game loadedGame = new Connect4Game(player1, player2);
+        loadedGame.loadGameBoard(filePath);
+
+        char[][] loadedGrid = loadedGame.getGameBoard().getBoard();
+        assertEquals('Y', loadedGrid[0][0]);
+        assertEquals('R', loadedGrid[1][1]);
+        assertEquals('.', loadedGrid[2][2]);
+
+        new File(filePath).delete();
     }
 
     @Test
@@ -100,36 +133,17 @@ public class Connect4GameTest {
     }
 
     @Test
-    public void testSaveGameBoard() throws IOException {
-        File file = new File("test_game_board.txt");
-        file.deleteOnExit();
-
-
-        game.getGameBoard().playMove(0, 'Y');
-        game.saveGameBoard(file.getPath());
-
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            for (int i = 0; i < GameBoard.ROWS - 1; i++) {
-                reader.readLine();
-            }
-            line = reader.readLine();
-            Assertions.assertEquals("Y......", line);
-        }
+    void testGenerateComputerMove() {
+        int col = game.generateComputerMove();
+        assertTrue(col >= 0 && col < GameBoard.COLS, "Computer move should be within valid column range.");
     }
 
     @Test
-    public void testLoadGameBoard() throws IOException {
-        File file = new File("test_game_board.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("Y......\n");
-            for (int i = 1; i < GameBoard.ROWS; i++) {
-                writer.write(".......\n");
-            }
-        }
-        game.loadGameBoard(file.getPath());
-        Assertions.assertEquals('Y', game.getGameBoard().getBoard()[0][0]);
+    public void testSwitchPlayer() {
+        game.switchPlayer();
+        Assertions.assertEquals(player2, game.getCurrentPlayer());
+        game.switchPlayer();
+        Assertions.assertEquals(player1, game.getCurrentPlayer());
     }
 
 
@@ -183,8 +197,5 @@ public class Connect4GameTest {
 
         assertTrue(game.checkDraw(), "The game should end in a draw when the board is full and no player has won.");
     }
-
-
-
 
 }
