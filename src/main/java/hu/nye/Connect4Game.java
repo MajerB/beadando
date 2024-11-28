@@ -65,13 +65,13 @@ public class Connect4Game {
                     continue;
                 }
             } else {
-                // Computer's turn
+
                 int col = generateComputerMove();
                 if (gameBoard.playMove(col, currentPlayer.getToken())) {
                     System.out.println("Computer plays in column: " + (char) ('a' + col));
                 } else {
                     System.out.println("Computer tried an invalid move. Re-trying...");
-                    continue; // Retry move if computer chose an invalid column
+                    continue;
                 }
             }
 
@@ -227,10 +227,10 @@ public class Connect4Game {
     public void updateHighScores(String winnerName) {
         Map<String, Integer> scores = loadHighScores();
 
-        // Update score for the winner
+
         scores.put(winnerName, scores.getOrDefault(winnerName, 0) + 1);
 
-        // Save updated scores back to the file
+
         saveHighScores(scores);
     }
 
