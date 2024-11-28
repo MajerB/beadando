@@ -31,7 +31,6 @@ public class Connect4Game {
             System.out.println("Press 0 to save the game, h to view high scores, q to quit, or choose a column (a,b,c,d,e,f,g): ");
 
             if (currentPlayer.equals(player1)) {
-                // Player's turn
                 String input = scanner.nextLine();
                 if (input.equals("0")) {
                     try {
@@ -79,10 +78,8 @@ public class Connect4Game {
                 displayBoard();
                 System.out.println(currentPlayer.getName() + " wins!");
 
-                // Update high scores
                 updateHighScores(currentPlayer.getName());
 
-                // Clear the game board file
                 try {
                     clearGameBoardFile(filePath);
                     System.out.println("Game board file cleared.");
@@ -110,10 +107,10 @@ public class Connect4Game {
                 }
                 writer.newLine();
             }
-            writer.flush(); // Ensure all data is written to the file
+            writer.flush();
         } catch (IOException e) {
             System.out.println("Error clearing game board file: " + e.getMessage());
-            throw e; // Re-throw exception for handling in the calling method
+            throw e;
         }
     }
 
@@ -125,7 +122,6 @@ public class Connect4Game {
         char[][] board = gameBoard.getBoard();
         char token = currentPlayer.getToken();
 
-        // Check horizontal
         for (int row = 0; row < GameBoard.ROWS; row++) {
             for (int col = 0; col < GameBoard.COLS - 3; col++) {
                 if (board[row][col] == token &&
@@ -137,7 +133,6 @@ public class Connect4Game {
             }
         }
 
-        // Check vertical
         for (int col = 0; col < GameBoard.COLS; col++) {
             for (int row = 0; row < GameBoard.ROWS - 3; row++) {
                 if (board[row][col] == token &&
@@ -149,7 +144,6 @@ public class Connect4Game {
             }
         }
 
-        // Check diagonal (bottom-left to top-right)
         for (int row = 3; row < GameBoard.ROWS; row++) {
             for (int col = 0; col < GameBoard.COLS - 3; col++) {
                 if (board[row][col] == token &&
@@ -161,7 +155,6 @@ public class Connect4Game {
             }
         }
 
-        // Check diagonal (top-left to bottom-right)
         for (int row = 0; row < GameBoard.ROWS - 3; row++) {
             for (int col = 0; col < GameBoard.COLS - 3; col++) {
                 if (board[row][col] == token &&
@@ -226,11 +219,7 @@ public class Connect4Game {
 
     public void updateHighScores(String winnerName) {
         Map<String, Integer> scores = loadHighScores();
-
-
         scores.put(winnerName, scores.getOrDefault(winnerName, 0) + 1);
-
-
         saveHighScores(scores);
     }
 
