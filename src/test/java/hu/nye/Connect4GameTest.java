@@ -16,6 +16,9 @@ class Connect4GameTest {
     private Player player1;
     private Player player2;
 
+
+
+
     @BeforeEach
     public void setUp() throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter("highscores.txt"));
@@ -239,7 +242,6 @@ class Connect4GameTest {
         assertTrue(scores.get("Player2") > scores.get("Player1"), "High scores should be sorted from highest to lowest.");
     }
 
-    
-
 
 }
+
