@@ -171,7 +171,6 @@ public class Connect4Game {
 
     public boolean checkDraw() {
         char[][] board = gameBoard.getBoard();
-        // A draw occurs if there are no empty cells ('.') in the top row
         for (int col = 0; col < GameBoard.COLS; col++) {
             if (board[0][col] == '.') {
                 return false;
