@@ -59,7 +59,7 @@
         </configuration>
       </plugin>
 
-      <!-- Maven Assembly Plugin for creating fat/uber jar -->
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -71,7 +71,7 @@
             </manifest>
           </archive>
           <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef> <!-- Include all dependencies -->
+            <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
         </configuration>
         <executions>
@@ -85,7 +85,7 @@
         </executions>
       </plugin>
 
-      <!-- JaCoCo for code coverage reports -->
+
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -106,7 +106,7 @@
         </executions>
         <configuration>
           <excludes>
-            <!-- Exclude JDK and core classes from instrumentation -->
+
             <exclude>java/*</exclude>
             <exclude>javax/*</exclude>
             <exclude>sun/*</exclude>
@@ -120,7 +120,7 @@
                 <limit>
                   <counter>LINE</counter>
                   <value>COVEREDRATIO</value>
-                  <minimum>0.80</minimum> <!-- 80% minimum line coverage -->
+                  <minimum>0.80</minimum>
                 </limit>
               </limits>
             </rule>
@@ -128,7 +128,7 @@
         </configuration>
       </plugin>
 
-      <!-- Checkstyle Plugin for code style checking -->
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
